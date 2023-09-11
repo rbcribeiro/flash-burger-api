@@ -4,6 +4,8 @@ const authMiddleware = require('./src/middleware/auth');
 const errorHandler = require('./src/middleware/error');
 const routes = require('./src/routes');
 const pkg = require('./package.json');
+const cors = require('cors');
+
 
 const { port, dbUrl, secret } = config;
 const app = express();
@@ -15,6 +17,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(authMiddleware(secret));
 
+const corsOptions = {
+  credentials: true, 
+};
+
+app.use(cors(corsOptions));
 
 routes(app, (err) => {
   if (err) {
