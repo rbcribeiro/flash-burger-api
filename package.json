@@ -17,7 +17,7 @@
     "docs:deploy": "rm -rf docs && npm run docs:generate && gh-pages -d docs",
     "dev": "nodemon index.js",
     "seed": "node prisma/seeds/seed-admin-user.js",
-    "vercel-build": "npx prisma migrate deploy"
+    "vercel-build": "npx prisma migrate deploy && npx prisma generate && npm run seed"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
