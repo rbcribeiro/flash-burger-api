@@ -16,15 +16,13 @@ const __e2e = {
   },
   adminToken: null,
   testUserCredentials: {
+    name: 'Test',
     email: 'test@test.test',
     password: '123456',
+    role: 'admin'
   },
   testUserToken: null,
   childProcessPid: null,
-  // in `testObjects` we keep track of objects created during the test run so
-  // that we can clean up before exiting.
-  // For example: ['users/foo@bar.baz', 'products/xxx', 'orders/yyy']
-  // testObjects: [],
 };
 
 const fetch = (url, opts = {}) => import('node-fetch')
@@ -52,23 +50,34 @@ const fetchWithAuth = (token) => (url, opts = {}) => fetch(url, {
 const fetchAsAdmin = (url, opts) => fetchWithAuth(__e2e.adminToken)(url, opts);
 const fetchAsTestUser = (url, opts) => fetchWithAuth(__e2e.testUserToken)(url, opts);
 
-const createTestUser = () => fetchAsAdmin('/users', {
-  method: 'POST',
-  body: __e2e.testUserCredentials,
-})
-  .then((resp) => {
-    if (resp.status !== 200) {
-      throw new Error('Could not create test user');
-    }
-    return fetch('/auth', { method: 'POST', body: __e2e.testUserCredentials });
+const createTestUser = () => {
+  console.log('Creating test user...');
+  return fetchAsAdmin('/users', {
+    method: 'POST',
+    body: __e2e.testUserCredentials,
   })
-  .then((resp) => {
-    if (resp.status !== 200) {
-      throw new Error('Could not authenticate test user');
-    }
-    return resp.json();
-  })
-  .then(({ token }) => Object.assign(__e2e, { testUserToken: token }));
+    .then((resp) => {
+      if (resp.status !== 200) {
+        throw new Error('Could not create test user');
+      }
+      console.log('Test user created successfully.');
+
+      console.log('Authenticating test user...');
+      return fetch('/auth', { method: 'POST', body: __e2e.testUserCredentials });
+    })
+    .then((resp) => {
+      if (resp.status !== 200) {
+        throw new Error('Could not authenticate test user');
+      }
+      console.log('Test user authenticated successfully.');
+
+      return resp.json();
+    })
+    .then(({ token }) => {
+      console.log('Test user token obtained successfully.');
+      return Object.assign(__e2e, { testUserToken: token });
+    });
+};
 
 const checkAdminCredentials = () => fetch('/auth', {
   method: 'POST',
@@ -108,7 +117,7 @@ module.exports = () => new Promise((resolve, reject) => {
   // TODO: Configurar DB de tests
 
   console.info('Staring local server...');
-  const child = spawn('npm', ['start', process.env.PORT || 8888], {
+  const child = spawn('node', ['index', process.env.PORT || 8888], {
     cwd: path.resolve(__dirname, '../'),
     stdio: ['ignore', 'pipe', 'pipe'],
   });
