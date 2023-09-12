@@ -22,15 +22,16 @@ module.exports = {
 
       if (!user) {
         console.info('User not found');
-        return resp.status(404).json({ message: 'Not found' });
+        return resp.status(404).json({ message: 'User not found' });
       }
 
       const passwordMatch = await bcrypt.compare(password, user.password);
 
       if (!passwordMatch) {
         console.info('Invalid password');
-        return resp.status(404).json({ message: 'Not found' });
+        return resp.status(401).json({ message: 'Unauthorized' });
       }
+      
 
       const token = jwt.sign({ email: user.email, role: user.role }, secret, {
         expiresIn: '1h',
