@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = (secrets) => (req, resp, next) => {
+module.exports = (secret) => (req, resp, next) => {
   const { authorization } = req.headers;
 
   if (req.url === '/auth' && req.method === 'POST') {
@@ -19,12 +19,15 @@ module.exports = (secrets) => (req, resp, next) => {
     return next();
   }
 
-  jwt.verify(token, secrets, (err, decodedToken) => {
+  jwt.verify(token, secret, (err, decodedToken) => {
     if (err) {
       console.error('Token verification failed:', err);
-      return resp.status(403).send('Acesso proibido');
+      return resp.status(403).json({ error: 'Acesso proibido', message: 'Falha na autenticação' });
     }
-
+  
+    const userId = decodedToken.uid;
+  
+  
     console.info('Token verified:', decodedToken);
     req.user = decodedToken;
     next();
