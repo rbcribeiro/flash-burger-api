@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 module.exports = (secrets) => (req, resp, next) => {
   const { authorization } = req.headers;
 
+  if (req.url === '/auth' && req.method === 'POST') {
+    return next(); 
+  }
+
   if (!authorization) {
     console.info('Authorization header missing');
     return next();
@@ -27,6 +31,13 @@ module.exports = (secrets) => (req, resp, next) => {
   });
 };
 
+module.exports.requireAuth = (req, resp, next) => {
+  if (!module.exports.isAuthenticated(req)) {
+    return resp.status(401).send('Autenticação necessária');
+  }
+  next();
+};
+
 module.exports.isAuthenticated = (req) => {
   const { user } = req;
   return user !== undefined;
@@ -35,13 +46,6 @@ module.exports.isAuthenticated = (req) => {
 module.exports.isAdmin = (req) => {
   const { user } = req;
   return user && user.role && user.role === 'admin';
-};
-
-module.exports.requireAuth = (req, resp, next) => {
-  if (!module.exports.isAuthenticated(req)) {
-    return resp.status(401).send('Autenticação necessária');
-  }
-  next();
 };
 
 module.exports.requireAdmin = (req, resp, next) => {
