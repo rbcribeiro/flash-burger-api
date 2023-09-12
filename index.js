@@ -18,10 +18,11 @@ app.use(express.json());
 app.use(authMiddleware(secret));
 
 const corsOptions = {
-  origin: ['http://localhost:4200', 'https://flash-burger.netlify.app'],
+  origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, 
+  credentials: true,
 };
+
 
 app.use(cors(corsOptions));
 

@@ -1,11 +1,9 @@
 const bcrypt = require("bcrypt");
-const { prisma, iniciarConexao, fecharConexao } = require("../../dbPrisma");
+const { prisma } = require("../../dbPrisma");
 
 async function seedData() {
   const saltRounds = 10;
   try {
-    await iniciarConexao(); // Inicia a conexão com o banco de dados
-
     const existingUser = await prisma.users.findFirst({
       where: { email: "admin@admin.com" },
     });
@@ -30,8 +28,6 @@ async function seedData() {
     }
   } catch (error) {
     console.error("Erro ao inserir dados de seed:", error);
-  } finally {
-    await fecharConexao(); 
   }
 }
 seedData()
